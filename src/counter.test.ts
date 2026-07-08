@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { incrementCount } from "./counter.ts";
+import { incrementCount } from "./counter";
 
 describe("incrementCount", () => {
   it("increments the current count by one", () => {

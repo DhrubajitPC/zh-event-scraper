@@ -228,7 +228,7 @@ export function deserializeEvent(markdown: string): NormalizedEvent {
     title: fm["title"],
     description: body.trim(),
     startDate: fm["start_date"],
-    endDate: fm["end_date"] === undefined ? null : fm["end_date"],
+    endDate: fm["end_date"],
     venue: {
       name: fm["venue_name"],
       address: fm["venue_address"],

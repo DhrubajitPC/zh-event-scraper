@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
+import { incrementCount } from './counter'
 import './App.css'
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
         <button
           type="button"
           className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={() => setCount(incrementCount)}
         >
           Count is {count}
         </button>

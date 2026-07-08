@@ -59,6 +59,10 @@ delivery, subscriber growth/engagement, and personalization relevance.
 - Linting is **oxlint** (`.oxlintrc.json`), not ESLint.
 - Testing is **Vitest** with React Testing Library and `jsdom` for component
   tests.
+- **No database (for now):** upcoming events and digests are persisted as
+  markdown files (YAML frontmatter for structured fields, body for
+  description) in a data directory. Do not introduce a database, ORM, or
+  external storage service without discussion.
 
 | Command        | What it does                    |
 | -------------- | ------------------------------- |
@@ -88,6 +92,9 @@ delivery, subscriber growth/engagement, and personalization relevance.
 - **Data contracts:** model event and summary types to mirror the shared
   schema (source id retained, ISO dates, structured venue, low-confidence
   flag, "why included" line) so the UI stays compatible with the engine track.
+  Markdown files with YAML frontmatter are the persistence format — frontmatter
+  fields mirror the normalized schema, and serialization must round-trip
+  (markdown ⇄ typed object) without data loss.
 - **Testing:** use Vitest for unit/component tests. Prefer React Testing Library
   queries that match user-visible behavior (`getByRole`, accessible names,
   visible text) over implementation details. Keep tests close to the code under

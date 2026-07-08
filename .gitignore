@@ -23,5 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 
-~$beacon_mvp_design_consolidated_7July.xlsx
-beacon_mvp_design_consolidated_7July.xlsx
+*.xlsx

@@ -36,7 +36,7 @@ const onlineEvent: NormalizedEvent = {
   endDate: null,
   venue: {
     name: "Online",
-    address: "",
+    address: null,
     city: "Singapore",
     country: "SG",
     online: true,

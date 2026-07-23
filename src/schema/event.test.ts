@@ -90,6 +90,30 @@ describe("validateNormalizedEvent", () => {
     }
   });
 
+  it("returns ok:false when startDate has a non-Singapore offset", () => {
+    const result = validateNormalizedEvent({
+      ...validEvent,
+      startDate: "2026-07-15T18:00:00+09:00",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.field).toBe("startDate");
+      expect(result.error.message).toMatch(/\+08:00/);
+    }
+  });
+
+  it("returns ok:false when id does not match <source>:<sourceEventId>", () => {
+    const result = validateNormalizedEvent({
+      ...validEvent,
+      id: "wrong:id",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.field).toBe("id");
+      expect(result.error.message).toContain("meetup:300123456");
+    }
+  });
+
   it("returns ok:false when lowConfidence is not a boolean", () => {
     const result = validateNormalizedEvent({
       ...validEvent,
@@ -209,5 +233,18 @@ describe("parseRawEventRecord", () => {
     expect(() => parseRawEventRecord("not an object")).toThrowError(
       SchemaValidationError,
     );
+  });
+
+  it("throws SchemaValidationError when scrapedAt is not a UTC ISO 8601 timestamp", () => {
+    expect(() =>
+      parseRawEventRecord({ ...validRaw, scrapedAt: "not-a-date" }),
+    ).toThrowError(SchemaValidationError);
+    // +08:00 offset is not a UTC (Z) timestamp
+    expect(() =>
+      parseRawEventRecord({
+        ...validRaw,
+        scrapedAt: "2026-07-08T03:00:00+08:00",
+      }),
+    ).toThrowError(SchemaValidationError);
   });
 });

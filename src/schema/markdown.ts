@@ -210,23 +210,29 @@ function parseFrontmatter(yaml: string): ParsedFrontmatter {
  * @throws {SchemaValidationError} when any required field is absent or invalid.
  */
 export function deserializeEvent(markdown: string): NormalizedEvent {
+  // Normalize CRLF line endings (common on Windows / Git autocrlf) to LF so
+  // the regex and frontmatter parser work consistently on any platform.
+  const normalized = markdown.replace(/\r\n/g, "\n");
   // Split on the frontmatter delimiters `---`.
-  // Allow for an optional leading newline after the opening `---`.
-  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(markdown.trim());
+  const match = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(normalized);
   if (!match) {
     throw new Error(
       "Invalid event markdown: expected YAML frontmatter delimited by `---`",
     );
   }
 
-  const [, yamlBlock, body] = match;
+  const [, yamlBlock, rawBody] = match;
+  // The serializer inserts a single blank line between the closing `---` and
+  // the description body; strip exactly that one leading newline so the
+  // round-trip is lossless without trimming trailing whitespace.
+  const body = rawBody.startsWith("\n") ? rawBody.slice(1) : rawBody;
   const fm = parseFrontmatter(yamlBlock);
 
   // Reconstruct the NormalizedEvent shape from flat frontmatter keys.
   const raw = {
     id: fm["id"],
     title: fm["title"],
-    description: body.trim(),
+    description: body,
     startDate: fm["start_date"],
     endDate: fm["end_date"],
     venue: {

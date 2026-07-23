@@ -154,6 +154,12 @@ describe("deserializeEvent", () => {
     const md = serializeEvent(baseEvent).replace(/^title:.*\n/m, "");
     expect(() => deserializeEvent(md)).toThrowError(SchemaValidationError);
   });
+
+  it("parses a file with CRLF line endings", () => {
+    const lf = serializeEvent(baseEvent);
+    const crlf = lf.replace(/\n/g, "\r\n");
+    expect(deserializeEvent(crlf)).toEqual(baseEvent);
+  });
 });
 
 // ---------------------------------------------------------------------------

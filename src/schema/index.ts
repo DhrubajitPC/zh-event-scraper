@@ -14,5 +14,4 @@ export {
   parseNormalizedEvent,
   parseRawEventRecord,
 } from "./validate.ts";
-export type { ValidationResult } from "./validate.ts";
 export { serializeEvent, deserializeEvent } from "./markdown.ts";

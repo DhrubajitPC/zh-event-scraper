@@ -22,7 +22,12 @@ async function emptyEventsDirectory(dataDir: string): Promise<void> {
 
   await Promise.all(
     entries
-      .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
+      .filter(
+        (entry) =>
+          entry.isFile() &&
+          entry.name.endsWith(".md") &&
+          entry.name.startsWith("techmeetups-"),
+      )
       .map((entry) => rm(path.join(dataDir, entry.name))),
   );
 }

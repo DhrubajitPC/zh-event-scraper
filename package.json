@@ -7,7 +7,7 @@
     "dev": "vp dev",
     "build": "tsc -b && vp build",
     "lint": "vp lint",
-    "scrape:techmeetups": "node scripts/fetch-techmeetups-singapore.ts",
+    "scrape:techmeetups": "node --experimental-strip-types scripts/fetch-techmeetups-singapore.ts",
     "test": "vp test run",
     "test:watch": "vp test",
     "preview": "vp preview"

@@ -204,7 +204,9 @@ function requireStringArray(
  * All NormalizedEvent dates must carry this offset so they are unambiguous
  * without a separate timezone field.
  */
-const ISO_8601_WITH_OFFSET = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$/;
+const SINGAPORE_UTC_OFFSET = "+08:00";
+const ISO_8601_WITH_OFFSET =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$/;
 
 /** ISO 8601 UTC timestamp pattern (Z suffix, e.g. 2026-07-08T03:00:00Z). */
 const ISO_8601_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
@@ -217,7 +219,7 @@ function requireIsoDate(
   if (value instanceof SchemaValidationError) return value;
   if (!ISO_8601_WITH_OFFSET.test(value)) {
     return new SchemaValidationError(
-      `Field "${field}" must be an ISO 8601 date-time with the Asia/Singapore offset (+08:00), e.g. 2026-07-15T18:00:00+08:00, got: ${JSON.stringify(value)}`,
+      `Field "${field}" must be an ISO 8601 date-time with the Asia/Singapore offset (${SINGAPORE_UTC_OFFSET}), e.g. 2026-07-15T18:00:00+08:00, got: ${JSON.stringify(value)}`,
       field,
       value,
     );
@@ -234,7 +236,7 @@ function requireNullableIsoDate(
   if (raw === null) return null;
   if (!ISO_8601_WITH_OFFSET.test(raw)) {
     return new SchemaValidationError(
-      `Field "${field}" must be an ISO 8601 date-time with the Asia/Singapore offset (+08:00) or null, e.g. 2026-07-15T18:00:00+08:00, got: ${JSON.stringify(raw)}`,
+      `Field "${field}" must be an ISO 8601 date-time with the Asia/Singapore offset (${SINGAPORE_UTC_OFFSET}) or null, e.g. 2026-07-15T18:00:00+08:00, got: ${JSON.stringify(raw)}`,
       field,
       raw,
     );

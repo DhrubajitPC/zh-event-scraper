@@ -225,6 +225,7 @@ export function deserializeEvent(markdown: string): NormalizedEvent {
   // The serializer inserts a single blank line between the closing `---` and
   // the description body; strip exactly that one leading newline so the
   // round-trip is lossless without trimming trailing whitespace.
+  // CRLF has already been normalized to LF at line 215, so `\n` is safe here.
   const body = rawBody.startsWith("\n") ? rawBody.slice(1) : rawBody;
   const fm = parseFrontmatter(yamlBlock);
 

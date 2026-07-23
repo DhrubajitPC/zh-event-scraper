@@ -1,52 +1,7 @@
-/**
- * Markdown ⇄ NormalizedEvent serialization.
- *
- * Storage format
- * ──────────────
- * Each NormalizedEvent is stored as a single `.md` file:
- *
- *   ---
- *   id: meetup:300123456
- *   title: "Tech Networking Night"
- *   start_date: "2026-07-15T18:00:00+08:00"
- *   end_date: "2026-07-15T21:00:00+08:00"
- *   venue_name: "The Working Capitol"
- *   venue_address: "140 Robinson Rd"
- *   venue_city: Singapore
- *   venue_country: SG
- *   venue_online: false
- *   source: meetup
- *   source_event_id: "300123456"
- *   source_url: https://www.meetup.com/sg-tech/events/300123456
- *   low_confidence: false
- *   categories:
- *     - tech
- *     - networking
- *   why_included: "Relevant to engineers in Singapore"
- *   created_at: "2026-07-08T00:00:00+08:00"
- *   updated_at: "2026-07-08T00:00:00+08:00"
- *   ---
- *
- *   Full event description in Markdown.
- *
- * The YAML subset used is deliberately narrow so no external YAML library is
- * needed:
- *   • Scalar strings  — optionally double-quoted
- *   • Booleans        — bare `true` or `false`
- *   • Null            — bare `~` or absent key
- *   • String arrays   — block sequence (`  - item`)
- */
-
 import { parseNormalizedEvent } from "./validate.ts";
 import type { NormalizedEvent } from "./types.ts";
 
-// ---------------------------------------------------------------------------
-// Serialization helpers
-// ---------------------------------------------------------------------------
-
-/** Quote a string value only when necessary. */
 function quoteIfNeeded(value: string): string {
-  // Quote if empty, contains special YAML characters, or starts/ends with whitespace.
   if (
     value === "" ||
     /[:#[\]{}&*!|>'"%@`,]/.test(value) ||
@@ -61,28 +16,16 @@ function quoteIfNeeded(value: string): string {
   return value;
 }
 
-/** Serialize a nullable string frontmatter field. */
 function serializeNullable(value: string | null): string {
   if (value === null) return "~";
   return quoteIfNeeded(value);
 }
 
-/** Serialize a string array as a YAML block sequence. */
 function serializeArray(items: string[]): string {
   if (items.length === 0) return "[]";
   return "\n" + items.map((item) => `  - ${quoteIfNeeded(item)}`).join("\n");
 }
 
-// ---------------------------------------------------------------------------
-// Public API — serialize
-// ---------------------------------------------------------------------------
-
-/**
- * Serialize a NormalizedEvent to a Markdown string with YAML frontmatter.
- *
- * The `description` field becomes the Markdown body; all other fields become
- * frontmatter entries.
- */
 export function serializeEvent(event: NormalizedEvent): string {
   const lines: string[] = [
     "---",
@@ -111,11 +54,6 @@ export function serializeEvent(event: NormalizedEvent): string {
   return lines.join("\n");
 }
 
-// ---------------------------------------------------------------------------
-// Deserialization helpers
-// ---------------------------------------------------------------------------
-
-/** Unquote a double-quoted string; return bare value unchanged. */
 function unquote(raw: string): string {
   const trimmed = raw.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) {
@@ -127,7 +65,6 @@ function unquote(raw: string): string {
   return trimmed;
 }
 
-/** Parse a scalar YAML value to string, boolean, or null. */
 function parseScalar(raw: string): string | boolean | null {
   const trimmed = raw.trim();
   if (trimmed === "true") return true;
@@ -142,10 +79,6 @@ interface ParsedFrontmatter {
   [key: string]: FrontmatterValue;
 }
 
-/**
- * Parse the narrow YAML subset used in event frontmatter.
- * Supports: scalars (string / bool / null) and block-sequence string arrays.
- */
 function parseFrontmatter(yaml: string): ParsedFrontmatter {
   const result: ParsedFrontmatter = {};
   const lines = yaml.split("\n");
@@ -154,13 +87,11 @@ function parseFrontmatter(yaml: string): ParsedFrontmatter {
   while (i < lines.length) {
     const line = lines[i];
 
-    // Skip blank lines
     if (line.trim() === "") {
       i++;
       continue;
     }
 
-    // Top-level key: value
     const colonIdx = line.indexOf(":");
     if (colonIdx === -1) {
       i++;
@@ -170,20 +101,16 @@ function parseFrontmatter(yaml: string): ParsedFrontmatter {
     const key = line.slice(0, colonIdx).trim();
     const rest = line.slice(colonIdx + 1);
 
-    // Check for inline empty array `[]`
     if (rest.trim() === "[]") {
       result[key] = [];
       i++;
       continue;
     }
 
-    // Check if the value is a block sequence (nothing after the colon, next
-    // lines start with `  - `).
     if (rest.trim() === "") {
       const items: string[] = [];
       i++;
       while (i < lines.length && /^\s{2}-\s/.test(lines[i])) {
-        // Extract the item after `  - `
         const itemRaw = lines[i].replace(/^\s{2}-\s/, "");
         items.push(unquote(itemRaw.trim()));
         i++;
@@ -199,21 +126,8 @@ function parseFrontmatter(yaml: string): ParsedFrontmatter {
   return result;
 }
 
-// ---------------------------------------------------------------------------
-// Public API — deserialize
-// ---------------------------------------------------------------------------
-
-/**
- * Parse a Markdown string (YAML frontmatter + body) into a NormalizedEvent.
- *
- * @throws {Error} when the frontmatter delimiters are missing or malformed.
- * @throws {SchemaValidationError} when any required field is absent or invalid.
- */
 export function deserializeEvent(markdown: string): NormalizedEvent {
-  // Normalize CRLF line endings (common on Windows / Git autocrlf) to LF so
-  // the regex and frontmatter parser work consistently on any platform.
   const normalized = markdown.replace(/\r\n/g, "\n");
-  // Split on the frontmatter delimiters `---`.
   const match = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(normalized);
   if (!match) {
     throw new Error(
@@ -222,14 +136,9 @@ export function deserializeEvent(markdown: string): NormalizedEvent {
   }
 
   const [, yamlBlock, rawBody] = match;
-  // The serializer inserts a single blank line between the closing `---` and
-  // the description body; strip exactly that one leading newline so the
-  // round-trip is lossless without trimming trailing whitespace.
-  // CRLF has already been normalized to LF at line 215, so `\n` is safe here.
   const body = rawBody.startsWith("\n") ? rawBody.slice(1) : rawBody;
   const fm = parseFrontmatter(yamlBlock);
 
-  // Reconstruct the NormalizedEvent shape from flat frontmatter keys.
   const raw = {
     id: fm["id"],
     title: fm["title"],

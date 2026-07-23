@@ -1,10 +1,5 @@
 import type { NormalizedEvent, RawEventRecord, Venue } from "./types.ts";
 
-// ---------------------------------------------------------------------------
-// Validation error
-// ---------------------------------------------------------------------------
-
-/** Error thrown when a record does not conform to the schema. */
 export class SchemaValidationError extends Error {
   readonly field: string;
   readonly received: unknown;
@@ -20,10 +15,6 @@ export class SchemaValidationError extends Error {
 export type ValidationResult =
   | { ok: true; value: NormalizedEvent }
   | { ok: false; error: SchemaValidationError };
-
-// ---------------------------------------------------------------------------
-// Internal field helpers
-// ---------------------------------------------------------------------------
 
 function requireString(
   data: Record<string, unknown>,
@@ -86,15 +77,8 @@ function requireStringArray(
   return value;
 }
 
-/**
- * ISO 8601 pattern with the Asia/Singapore UTC offset (+08:00 only).
- * All NormalizedEvent dates must carry this offset so they are unambiguous
- * without a separate timezone field.
- */
 const SINGAPORE_UTC_OFFSET = "+08:00";
 const ISO_8601_WITH_OFFSET = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$/;
-
-/** ISO 8601 UTC timestamp pattern (Z suffix, e.g. 2026-07-08T03:00:00Z). */
 const ISO_8601_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 
 function requireIsoDate(
@@ -191,17 +175,6 @@ function parseVenue(
   return { name, address, city, country, online };
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-/**
- * Validate an unknown value as a NormalizedEvent.
- *
- * Returns a discriminated union so callers can handle errors without try/catch:
- *   const result = validateNormalizedEvent(data);
- *   if (!result.ok) throw result.error;
- */
 export function validateNormalizedEvent(data: unknown): ValidationResult {
   if (
     data === null ||
@@ -276,7 +249,6 @@ export function validateNormalizedEvent(data: unknown): ValidationResult {
     string,
   ];
 
-  // Enforce the id invariant: id must equal "<source>:<sourceEventId>".
   const expectedId = `${source}:${sourceEventId}`;
   if (id !== expectedId) {
     return {
@@ -310,22 +282,12 @@ export function validateNormalizedEvent(data: unknown): ValidationResult {
   };
 }
 
-/**
- * Parse and validate a NormalizedEvent, throwing on any validation failure.
- *
- * @throws {SchemaValidationError} with an actionable message describing the invalid field.
- */
 export function parseNormalizedEvent(data: unknown): NormalizedEvent {
   const result = validateNormalizedEvent(data);
   if (!result.ok) throw result.error;
   return result.value;
 }
 
-/**
- * Validate an unknown value as a RawEventRecord.
- *
- * @throws {SchemaValidationError} with an actionable message describing the invalid field.
- */
 export function parseRawEventRecord(data: unknown): RawEventRecord {
   if (
     data === null ||

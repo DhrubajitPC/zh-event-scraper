@@ -22,7 +22,8 @@ When working in this repo you will typically:
   consume the same summary contract the agent squads produce — no duplicate
   summarization logic in the UI.
 - Before declaring work done, run `pnpm lint`, `pnpm test`, and `pnpm build`
-  and make sure all pass.
+  and make sure all pass. (`pnpm lint` runs `vp lint`; `pnpm test` runs
+  `vp test run`; `pnpm build` runs `tsc -b && vp build`.)
 - When the spec is ambiguous, flag genuine gaps rather than inventing scope.
 
 ## Context
@@ -52,26 +53,27 @@ delivery, subscriber growth/engagement, and personalization relevance.
 
 ### Tech stack & commands
 
-- React 19 + TypeScript ~6.0 + Vite 8, with the **React Compiler enabled**
-  (babel plugin in `vite.config.ts`).
+- React 19 + TypeScript ~6.0 + **Vite+** (`vite-plus`/`vp`) unified toolchain,
+  with the **React Compiler enabled** (babel plugin in `vite.config.ts`).
 - Package manager is **pnpm** (`pnpm-lock.yaml` — do not introduce npm/yarn
   lockfiles).
-- Linting is **oxlint** (`.oxlintrc.json`), not ESLint.
-- Testing is **Vitest** with React Testing Library and `jsdom` for component
-  tests.
+- Linting is **oxlint** via `vp lint` (config in `vite.config.ts` `lint` block,
+  not a standalone `.oxlintrc.json`).
+- Testing is **Vitest** (bundled in `vite-plus`) with React Testing Library and
+  `jsdom` for component tests, run via `vp test`.
 - **No database (for now):** upcoming events and digests are persisted as
   markdown files (YAML frontmatter for structured fields, body for
   description) in a data directory. Do not introduce a database, ORM, or
   external storage service without discussion.
 
-| Command        | What it does                    |
-| -------------- | ------------------------------- |
-| `pnpm dev`     | Vite dev server with HMR        |
-| `pnpm build`   | `tsc -b` type-check + Vite build |
-| `pnpm lint`    | oxlint                          |
-| `pnpm test`    | Vitest test suite, single run   |
-| `pnpm test:watch` | Vitest in watch mode         |
-| `pnpm preview` | Preview the production build    |
+| Command           | What it does                                   |
+| ----------------- | ---------------------------------------------- |
+| `pnpm dev`        | `vp dev` — Vite dev server with HMR            |
+| `pnpm build`      | `tsc -b && vp build` — TypeScript check + Vite build |
+| `pnpm lint`       | `vp lint` — oxlint (rules from `vite.config.ts`) |
+| `pnpm test`       | `vp test run` — Vitest test suite, single run  |
+| `pnpm test:watch` | `vp test` — Vitest in watch mode               |
+| `pnpm preview`    | `vp preview` — preview the production build    |
 
 ### Repo layout
 
@@ -95,7 +97,7 @@ delivery, subscriber growth/engagement, and personalization relevance.
   Markdown files with YAML frontmatter are the persistence format — frontmatter
   fields mirror the normalized schema, and serialization must round-trip
   (markdown ⇄ typed object) without data loss.
-- **Testing:** use Vitest for unit/component tests. Prefer React Testing Library
+- **Testing:** use Vitest (via `vp test`) for unit/component tests. Prefer React Testing Library
   queries that match user-visible behavior (`getByRole`, accessible names,
   visible text) over implementation details. Keep tests close to the code under
   test using `*.test.ts` / `*.test.tsx`, and add or update focused tests when

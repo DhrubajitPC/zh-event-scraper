@@ -106,3 +106,16 @@ delivery, subscriber growth/engagement, and personalization relevance.
   e.g. "init scaffold").
 - **Agent replies:** lead with what changed and why; list the commands you ran
   (`pnpm lint`, `pnpm test`, `pnpm build`) and their results.
+
+### Code comments and documentation
+
+- Prefer self-documenting code over explanatory comments.
+- Keep comments concise and only add them when they explain **why** something
+  non-obvious is necessary. Do not comment on what the code plainly does.
+- Do not add large block comments, implementation guides, examples, schemas,
+  or mini-documentation pages inside source files.
+- Do not use comments to restate requirements, types, tests, or behavior that
+  is already evident from the code.
+- Put substantial documentation, format specifications, and architectural
+  explanations in the appropriate `docs/` file rather than source-code comments.
+- Preserve useful existing comments unless they are made obsolete by the change.

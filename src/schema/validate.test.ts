@@ -4,8 +4,8 @@ import {
   parseNormalizedEvent,
   parseRawEventRecord,
   validateNormalizedEvent,
-} from "./event.ts";
-import type { NormalizedEvent } from "./event.ts";
+} from "./validate.ts";
+import type { NormalizedEvent } from "./types.ts";
 
 // ---------------------------------------------------------------------------
 // Test fixtures

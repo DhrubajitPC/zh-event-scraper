@@ -7,11 +7,12 @@
  *   import { parseNormalizedEvent, serializeEvent, deserializeEvent } from "@/schema";
  */
 
-export type { NormalizedEvent, RawEventRecord, Venue } from "./event.ts";
+export type { NormalizedEvent, RawEventRecord, Venue } from "./types.ts";
 export {
   SchemaValidationError,
   validateNormalizedEvent,
   parseNormalizedEvent,
   parseRawEventRecord,
-} from "./event.ts";
+} from "./validate.ts";
+export type { ValidationResult } from "./validate.ts";
 export { serializeEvent, deserializeEvent } from "./markdown.ts";

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deserializeEvent, serializeEvent } from "./markdown.ts";
-import type { NormalizedEvent } from "./event.ts";
-import { SchemaValidationError } from "./event.ts";
+import type { NormalizedEvent } from "./types.ts";
+import { SchemaValidationError } from "./validate.ts";
 
 // ---------------------------------------------------------------------------
 // Test fixtures

@@ -37,8 +37,8 @@
  *   • String arrays   — block sequence (`  - item`)
  */
 
-import { parseNormalizedEvent } from "./event.ts";
-import type { NormalizedEvent } from "./event.ts";
+import { parseNormalizedEvent } from "./validate.ts";
+import type { NormalizedEvent } from "./types.ts";
 
 // ---------------------------------------------------------------------------
 // Serialization helpers
